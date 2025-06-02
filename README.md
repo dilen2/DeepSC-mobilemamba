@@ -1,1 +1,1 @@
-# MobileMambaJSCC
+# mmjscc
