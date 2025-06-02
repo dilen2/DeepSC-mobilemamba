@@ -1,0 +1,101 @@
+BASE: ['../config.py']
+
+MODEL:
+  TYPE: 'mobilemamba'
+  NAME: 'mobilemamba_tiny'
+  MOBILEMAMBA:
+    PATCH_SIZE: 4
+    IN_CHANS: 3
+    OUT_CHANS: 36
+    DEPTHS: [2, 2, 6, 2]
+    EMBED_DIM: [96, 192, 384, 768]
+    TYPE: 's'
+    ED: 96
+    GLOBAL_RATIO: 0.5
+    LOCAL_RATIO: 0.5
+    KERNELS: [3, 3, 3, 3]
+
+DATA:
+  TRAIN_BATCH: 4
+  TEST_BATCH: 1
+  DATASET: 'DIV2K'
+  IMG_SIZE: 256
+  train_data_dir: "/mnt/wutong/datasets/DIV2K/DIV2K_train_HR"
+  test_data_dir: "/mnt/wutong/datasets/DIV2K/DIV2K_valid_HR"
+
+TRAIN:
+  EPOCHS: 100
+  WARMUP_EPOCHS: 20
+  BASE_LR: 1e-4
+  WARMUP_LR: 5e-7
+  MIN_LR: 5e-6
+  WEIGHT_DECAY: 0.05
+  CLIP_GRAD: 5.0
+  AUTO_RESUME: True
+  ACCUMULATION_STEPS: 1
+  USE_CHECKPOINT: False
+  LOSS: 'MSE'
+  DATA_PARALLEL: False
+  EVAL_MATRIX: 'PSNR'
+  GAN_LOSS: False
+  DIS_WEIGHT: 0.5
+  START_EPOCH: 0
+  ENCODER_PATH: '/mnt/wutong/MambaJSCCcheckpoints/Journal/encoder'
+  DECODER_PATH: '/mnt/wutong/MambaJSCCcheckpoints/Journal/decoder'
+
+CHANNEL:
+  TYPE: 'awgn'
+  SNR: [20]
+  ADAPTIVE: 'CA'
+  INPUT: 'conv'
+
+OUTPUT: 'output/mobilemamba_tiny_DIV2K'
+TAG: 'default'
+
+TRAIN:
+  LR_SCHEDULER:
+    NAME: 'cosine'
+    DECAY_EPOCHS: 30
+    DECAY_RATE: 0.1
+    WARMUP_PREFIX: True
+    GAMMA: 0.1
+    MULTISTEPS: []
+  
+  OPTIMIZER:
+    NAME: 'adamw'
+    EPS: 1e-8
+    BETAS: [0.9, 0.999]
+    MOMENTUM: 0.9
+  
+  LAYER_DECAY: 1.0
+
+AUG:
+  COLOR_JITTER: 0.4
+  AUTO_AUGMENT: 'rand-m9-mstd0.5-inc1'
+  REPROB: 0.25
+  REMODE: 'pixel'
+  RECOUNT: 1
+  MIXUP: 0.8
+  CUTMIX: 1.0
+  CUTMIX_MINMAX: null
+  MIXUP_PROB: 1.0
+  MIXUP_SWITCH_PROB: 0.5
+  MIXUP_MODE: 'batch'
+
+TEST:
+  CROP: True
+  SEQUENTIAL: False
+  SHUFFLE: False
+
+MISC:
+  ENABLE_AMP: False
+  AMP_ENABLE: True
+  AMP_OPT_LEVEL: ''
+  OUTPUT: ''
+  TAG: 'default'
+  SAVE_FREQ: 1
+  PRINT_FREQ: 10
+  SEED: 0
+  EVAL_MODE: False
+  THROUGHPUT_MODE: False
+  FUSED_LAYERNORM: False 
